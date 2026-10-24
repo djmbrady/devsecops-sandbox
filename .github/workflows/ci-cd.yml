@@ -1,0 +1,37 @@
+name: CI/CD & Security Scan Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  security-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Compile TypeScript
+        run: |
+          npm ci
+          npx tsc
+
+      - name: Build Docker Image
+        run: docker build -t ts-api:${{ github.sha }} .
+
+      # DevSecOps Step: Trivy Vulnerability Scan
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'ts-api:${{ github.sha }}'
+          format: 'table'
+          exit-code: '0' # Set to '1' to fail the PR on critical CVE findings
+          severity: 'CRITICAL,HIGH'
