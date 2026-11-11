@@ -35,3 +35,18 @@ jobs:
           format: 'table'
           exit-code: '0' # Set to '1' to fail the PR on critical CVE findings
           severity: 'CRITICAL,HIGH'
+
+      # 2. Agentic Extension: Run your AI CVE Identification & Triage Agent
+      - name: Set up Python for Agentic Audit
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Agentic CVE Identification Script
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          pip install groq python-dotenv pydantic
+          python cve_identifier.py
+
+
