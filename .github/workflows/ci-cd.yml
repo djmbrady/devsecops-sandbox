@@ -56,8 +56,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r agent-repo/requirements.txt
 
+      - name: Run Source CVE Identification Agent
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python agent-repo/cve_identifier.py
+
       - name: Run Docker Image Identification Agent
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           IMAGE_TAG: ts-api:${{ github.sha }}
         run: python agent-repo/docker_image_identifier.py
